@@ -16,8 +16,7 @@ const io = new Server(server, {
     origin: "*",
     methods: ["GET", "POST"],
   },
-}); //work websocket connection + http connection
-//work on same code + same server
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,26 +31,43 @@ app.get("/", (req, res) => {
 const editorNamespace = io.of("/editor");
 editorNamespace.on("connection", (socket) => {
   console.log("editor is connected");
-  //somehow we will get projectId from frontend
-  console.log(socket.handshake.query['projectId']);
-  let projectId = socket.handshake.query['projectId'];
+  // get projectId from frontend's connection query
+  console.log(socket.handshake.query["projectId"]);
+  let projectId = socket.handshake.query["projectId"];
   console.log("projectId received after connection", projectId);
+
+  // If a projectId was provided, join a room named by that projectId
   if (projectId) {
+    socket.join(projectId);
+
     var watcher = chokidar.watch(`./projects/${projectId}`, {
-      ignored: (path) => path.includes("node_modules"), //ignoring node_modules folder
+      ignored: (path) => path.includes("node_modules"), // ignore node_modules folder
       persistwnt: true /** keeps the watcher in running state till the time app is runing */,
       awaitWriteFinish: {
-        stabilityThreshold: 2000 /**wait for 2 sec after writing the file +
-      ensure stability of files before triggering event */,
+        stabilityThreshold: 2000 /** wait for 2 sec after writing the file + ensure stability of files before triggering event */,
       },
-      ignoreInitial: true /**ignore the initial add events when watcher is started */,
+      ignoreInitial: true /** ignore the initial add events when watcher is started */,
     });
 
+    // Emit watcher events to the specific project room only
     watcher.on("all", (event, path) => {
-      console.log(event, path);
+      console.log("file watcher event", event, path);
+      editorNamespace.to(projectId).emit("fileChanged", { event, path });
+    });
+
+    // Clean up watcher when the socket disconnects
+    socket.on("disconnect", () => {
+      try {
+        if (watcher) watcher.close();
+      } catch (err) {
+        console.error("Error closing watcher", err);
+      }
+      console.log("socket disconnected, watcher closed for project", projectId);
     });
   }
-  handleEditorSocket(socket,editorNamespace);
+
+  // pass projectId into the handler so emitted events can be room-scoped
+  handleEditorSocket(socket, editorNamespace, projectId);
 
 });
 
