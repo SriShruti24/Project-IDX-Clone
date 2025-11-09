@@ -14,16 +14,16 @@ const BrowserTerminal = () => {
     const term = new Terminal({
       cursorBlink: true,
       fontSize: 16,
-      fontFamily: "Ubuntu mono",
       convertEol: true,
       theme: {
         background: "#333254",
         foreground: "#ffffff",
       },
     });
-    term.open(terminalRef.current);
+
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
+    term.open(terminalRef.current);
     fitAddon.fit();
     term.focus();
 
@@ -32,9 +32,13 @@ const BrowserTerminal = () => {
     });
 
     socket.current.on("shell-output", (data) => {
-      term.write(data);
+      console.log(
+        data
+      );
+      term.write(String(data));
     });
 
+    // send typed input to server
     term.onData((data) => {
       socket.current.emit("shell-input", data);
     });
@@ -48,7 +52,6 @@ const BrowserTerminal = () => {
   return (
     <div
       ref={terminalRef}
-      tabIndex={0}
       style={{
         height: "25vh",
         overflow: "auto",

@@ -84,3 +84,8 @@ cane also pull nd push from docker hub
 -fsSL command
 ---------------
 handleContainer
+---------
+steps to turn up docker container after creating project
+1. Setup the docker image:-docker build -t sandbox .
+. for linux
+{create image}

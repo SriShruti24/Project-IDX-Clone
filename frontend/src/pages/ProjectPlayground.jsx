@@ -41,52 +41,48 @@ export const ProjectPlayground = () => {
     }
   }, [setProjectId, projectIdFromUrl, setEditorSocket]);
 
-  return (
-    <>
-      <div style={{ display: "flex" }}>
-        {projectId && (
-          <div
-            style={{
-              backgroundColor: "#333254",
-              paddingRight: "10px",
-              paddingTop: "0.3vh",
-              minWidth: "250px",
-              maxWidth: "25%",
-              height: "79.7vh",
-              overflow: "auto",
-            }}
-          >
-            <TreeStructure />
-          </div>
-        )}
+ return (
+  <div style={{ height: "100vh", display: "flex", overflow: "hidden" }}>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            margin: 0,
-            padding: 0,
-          }}
-        >
-          <EditorComponent />
+    {/* LEFT SIDEBAR */}
+    {projectId && (
+      <div
+        style={{
+          width: "250px",
+          height:"73.7vh",
+          backgroundColor: "#333254",
+          padding: "8px",
+          overflowY: "auto"
 
-          <BrowserTerminal />
-        </div>
+        }}
+      >
+        <TreeStructure />
+      </div>
+    )}
+
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, minHeight: 0 }}>
+
+         <div style={{ display: "flex", gap: "6px", padding: "6px", background: "white"}}>
+        {files.map((file) => (
+          <EditorButton
+            key={file.id}
+            label={file.name}
+            isActive={file.active}
+            onClose={() => handleClose(file.id)}
+          />
+        ))}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <div style={{ display: "flex", gap: "8px" }}>
-          {files.map((file) => (
-            <EditorButton
-              key={file.id}
-              label={file.name}
-              isActive={file.active}
-              onClose={() => handleClose(file.id)}
-            />
-          ))}
-        </div>
+      <div style={{ flex: 1, minHeight: 0,overflow: "hidden" }}>
+        <EditorComponent />
       </div>
-    </>
-  );
+
+      <div style={{ height: "25vh", minHeight: "140px", borderTop: "1px solid #444" }}>
+        <BrowserTerminal />
+      </div>
+
+    </div>
+  </div>
+);
+
 };
