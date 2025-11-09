@@ -76,3 +76,11 @@ CORS                   Enabled Allows connections from any frontend origin
 -----------------------------------------
 npm i querystring
 socket io query params with react
+------------------------------
+docker-->OS level virtualization in form of container(light weight)(less amount of resource consume)(easily shutdown,open)
+image-->readymade template{blueprint}
+cane also pull nd push from docker hub
+-----------------------
+-fsSL command
+---------------
+handleContainer

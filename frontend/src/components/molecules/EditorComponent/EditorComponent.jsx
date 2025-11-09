@@ -1,4 +1,5 @@
 import Editor from '@monaco-editor/react';
+import "monaco-editor/min/vs/editor/editor.main.css";
 import { useEffect, useState } from 'react';
 import { useActiveFileTabStore } from '../../../store/activeFileTabStore';
 import { useEditorSocketStore } from '../../../store/editorSocketStore';

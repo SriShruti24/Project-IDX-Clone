@@ -195,5 +195,13 @@ implement rooms in project (configuring editor Socket)
 2.context for folder
 1:30:30
 3..how to attach ctrl+ b event listener
+4. drop down of theme complexity
 ----------------------------------------------
 handle tree --> onContextmenu--> by right click
+-----------------------------------------------
+socket.io rooms--->You have multiple people or tabs editing the same file (e.g. /src/App.js) in your project.
+You want them all to see the same live code changes — like in Google Docs or VS Code Live Share.
+Project ID	    File Path	               Room Name
+123	          /src/App.js	        123:/src/App.js
+-----------------------------
+xterm----> for terminal

@@ -6,6 +6,7 @@ import { TreeStructure } from "../components/organisms/TreeStructure";
 import { useTreeStructureStore } from "../store/treeStructureStore";
 import { useEditorSocketStore } from "../store/editorSocketStore";
 import io from "socket.io-client";
+import BrowserTerminal from "../components/molecules/BrowserTerminal/BrowserTerminal";
 
 export const ProjectPlayground = () => {
   const { projectId: projectIdFromUrl } = useParams();
@@ -22,45 +23,59 @@ export const ProjectPlayground = () => {
   };
   const { setProjectId, projectId } = useTreeStructureStore();
 
-  const{setEditorSocket}=useEditorSocketStore();
+  const { setEditorSocket } = useEditorSocketStore();
 
   useEffect(() => {
-    if(projectIdFromUrl){
+    if (projectIdFromUrl) {
       setProjectId(projectIdFromUrl);
-    console.log("projectId set in playground", projectIdFromUrl);
-    const editorSocketConn=io(`${import.meta.env.VITE_BACKEND_URL}/editor`,{
-        query:{
-          projectId:projectIdFromUrl
+      console.log("projectId set in playground", projectIdFromUrl);
+      const editorSocketConn = io(
+        `${import.meta.env.VITE_BACKEND_URL}/editor`,
+        {
+          query: {
+            projectId: projectIdFromUrl,
+          },
         }
-      });
-    setEditorSocket(editorSocketConn);
+      );
+      setEditorSocket(editorSocketConn);
     }
-
-  }, [setProjectId, projectIdFromUrl,setEditorSocket]);
+  }, [setProjectId, projectIdFromUrl, setEditorSocket]);
 
   return (
     <>
-      <div style={{display:"flex"}}>
+      <div style={{ display: "flex" }}>
         {projectId && (
           <div
             style={{
               backgroundColor: "#333254",
               paddingRight: "10px",
               paddingTop: "0.3vh",
-              midWidth: "250px",
+              minWidth: "250px",
               maxWidth: "25%",
-              height: "99.7vh",
+              height: "79.7vh",
               overflow: "auto",
             }}
           >
             <TreeStructure />
           </div>
         )}
-        <EditorComponent />
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          <EditorComponent />
+
+          <BrowserTerminal />
+        </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        {/* row of buttons */}
         <div style={{ display: "flex", gap: "8px" }}>
           {files.map((file) => (
             <EditorButton
