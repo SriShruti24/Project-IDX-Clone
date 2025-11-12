@@ -2,8 +2,8 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { useEffect, useRef } from "react";
-import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
+import {AttachAddon} from '@xterm/addon-attach';
 
 const BrowserTerminal = () => {
   const terminalRef = useRef(null);
@@ -14,49 +14,47 @@ const BrowserTerminal = () => {
     const term = new Terminal({
       cursorBlink: true,
       fontSize: 16,
+      fontFamily:"Fira Code",
       convertEol: true,
       theme: {
         background: "#333254",
         foreground: "#ffffff",
       },
     });
-
+ 
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     term.open(terminalRef.current);
     fitAddon.fit();
     term.focus();
 
-    socket.current = io(`${import.meta.env.VITE_BACKEND_URL}/terminal`, {
-      query: { projectId: projectIdFromUrl },
-    });
-
-    socket.current.on("shell-output", (data) => {
-      console.log(
-        data
-      );
-      term.write(String(data));
-    });
-
-    // send typed input to server
-    term.onData((data) => {
-      socket.current.emit("shell-input", data);
-    });
+    // socket.current = io(`${import.meta.env.VITE_BACKEND_URL}/terminal`, {
+    //   query: { projectId: projectIdFromUrl },
+    // });
+    socket.current=new WebSocket("ws://localhost:5000/terminal?projectId="+projectIdFromUrl);
+    socket.current.onopen=()=>{
+      const attachAddon =new AttachAddon(socket.current);
+      term.loadAddon(attachAddon);
+    }
+    
+    const handleResize = () => fitAddon.fit();
+    window.addEventListener("resize", handleResize);
 
     return () => {
+      window.removeEventListener("resize", handleResize);
       term.dispose();
-      socket.current.disconnect();
+      // socket.current.disconnect();
     };
-  }, [projectIdFromUrl]);
+  }, [projectIdFromUrl]); 
 
   return (
     <div
       ref={terminalRef}
       style={{
-        height: "25vh",
-        overflow: "auto",
+        height: "100%",
+        width: "100%",
+        overflow: "hidden",
       }}
-      className="terminal"
     />
   );
 };

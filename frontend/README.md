@@ -205,3 +205,22 @@ Project ID	    File Path	               Room Name
 123	          /src/App.js	        123:/src/App.js
 -----------------------------
 xterm----> for terminal
+------------------------
+install npm i @xterm/addon-atttach
+--------------------------------------
+const editorSocketConn = io(
+        `${import.meta.env.VITE_BACKEND_URL})
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Socket.IO starts with a normal HTTP request using long-polling.
+
+Server responds and begins the WebSocket upgrade handshake.
+
+HTTP connection is then upgraded to WebSocket (101 Switching Protocols).
+
+After upgrade, data flows both ways in real time over WebSocket.
+
+Formula:
+
+HTTP → Upgrade → WebSocket → Real-time Communication
+--------------------------------------------
+import {AttachAddon} from '@xterm/addon-attach';tihs step done for termial looking after setting up socket succesfully

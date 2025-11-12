@@ -2,37 +2,44 @@ import Docker from "dockerode";
 
 const docker = new Docker();
 
-export const handleContainerCreate = async (projectId, socket) => {
-  console.log("project id received for container create", projectId);
- try {
-     const container = await docker.createContainer({
-    Image: "sandbox", //name given by us for the written dockerfile
-    AttachStdin: true,
-    AttachStdout: true,
-    Cmd: ["/bin/bash"],
-    Tty: true,
-    User: "sandbox",
-    HostConfig: {
-      Binds: [//mounting the project directory to the container
-        `${process.cwd()}/../projects/${projectId}:/home/sandbox/app`],
-      PortBindings: {
-        "5173/tcp": [
-          {
-            HostPort: "0", //random port will be assigned by docker
-          },
-        ],
+export const handleContainerCreate = async (projectId, terminalSocket,req,tcpSocket,head) => {
+  console.log("project id received for container create:", projectId);
+
+  try {
+    const container = await docker.createContainer({
+      Image: "sandbox",
+      Tty: true,
+      AttachStdin: true,
+      AttachStdout: true,
+      AttachStderr: true,
+      Cmd: ["/bin/bash"],
+      User: "sandbox",
+      Volumes:{
+        "/home/sandbox/app":{}
       },
       ExposedPorts: {
-        "5173/tcp": {},
+          "5173/tcp": {},
+        },
+        Env: ["HOST=0.0.0.0"],
+      HostConfig: {
+        Binds: [`${process.cwd()}/../projects/${projectId}:/home/sandbox/app`],
+        PortBindings: {
+          "5173/tcp": [{ HostPort: "0" }],//random port will be assigned by docker
+        },
       },
-      Env: ["Host=0.0.0.0"]
-    }
-  });
-  console.log("Container created",container.id);
-  await container.start();
-  console.log("container started");
- } catch (error) {
-    console.log("Error while creating container",error);
- }
+    });
 
+    console.log("Container created:", container.id);
+
+    await container.start();
+    console.log("Container started");
+    //below is the place where we upgrade connection to websocket
+    terminalSocket.handleUpgrade(req,tcpSocket,head,(establishedWSConn)=>{
+      terminalSocket.emit("connection",establishedWSConn,req,container);
+    })
+    //establishedWSConn -->callback function we get afte establish websocket connection
+    
+  } catch (error) {
+    console.log("Error while creating container:", error.message || error);
+  }
 };

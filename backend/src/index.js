@@ -7,6 +7,8 @@ import apiRouter from "./routes/index.js";
 import chokidar from "chokidar";
 import { handleEditorSocket } from "./socketHandlers/editorHandler.js";
 import { handleContainerCreate } from "../src/containers/handleContainerCreate.js";
+import {WebSocketServer} from 'ws';
+import { handleTerminalCreation } from "../src/containers/handleTerminalCreation.js";
 
 
 /*important */
@@ -55,24 +57,36 @@ editorNamespace.on("connection", (socket) => {
   handleEditorSocket(socket,editorNamespace);
 
 });
-const terminalNamespace =io.of('/terminal');
-terminalNamespace.on("connection", (socket) => {
-  console.log("terminal connected");
-
-  let projectId=socket.handshake.query['projectId'];
-
-  socket.on("shell-input", (data) => {
-  console.log("TERMINAL INPUT:", data); // data is already string
-  socket.emit("shell-output", data);    // send back string without converting
-});
-
-  socket.on("disconnect", () => {
-    console.log("terminal disconnected");
-  });
-  handleContainerCreate(projectId,socket);
-});
-
 
 server.listen(PORT, () => {
   console.log(`dev Server is running on port ${PORT}`);
+  console.log(process.cwd())
 }); //not app.listen bcz we r using http module server so we have to use server.listen
+
+const webSocketForTerminal = new WebSocketServer({
+  noServer:true //we will handle the upgrade event
+});
+server.on("upgrade", (req,tcpSocket,head) => {
+  const isTerminal = req.url.includes("/terminal");
+
+  if (isTerminal) {
+    console.log("req url received:", req.url);
+    const projectId= req.url.split("=")[1];
+    console.log("project id received after coonection",projectId);
+
+    handleContainerCreate(projectId,webSocketForTerminal,req,tcpSocket,head);
+  }
+});
+
+webSocketForTerminal.on("connection",(ws,req,container)=>{
+  console.log("Terminal connected",ws,req,container);
+  handleTerminalCreation(container,ws);
+  ws.on("close",()=>{
+    container.remove({force:true},(err,data)=>{
+      if(err){
+        console.log("Error while removing container",err);
+      }
+      console.log("Container removed",data);
+    });//sanity check  to close the container when wensocket is close to avoid unnesscary container
+  })
+})
