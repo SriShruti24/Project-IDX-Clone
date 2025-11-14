@@ -54,6 +54,9 @@ editorNamespace.on("connection", (socket) => {
       console.log(event, path);
     });
   }
+  socket.on("getport",()=>{
+    console.log("gotPort event received");
+  })
   handleEditorSocket(socket,editorNamespace);
 
 });

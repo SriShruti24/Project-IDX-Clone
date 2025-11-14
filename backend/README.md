@@ -194,4 +194,9 @@ ab uss connection ko hm bhejnge webSocketForTerminal pr
 --->jaise terminal connected hogya--> call handleTerminalCreation
 ---> jaise connection close ho turant container remove kr dena ki memory bhare na
 
-
+===================================
+we also used dockerode
+all output coming handleTerminalCreation( all read/write happening)
+--------------
+about vite --host flag
+iframe data can use  

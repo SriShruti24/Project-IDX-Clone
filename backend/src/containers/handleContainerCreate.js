@@ -22,7 +22,7 @@ export const handleContainerCreate = async (projectId, terminalSocket,req,tcpSoc
         },
         Env: ["HOST=0.0.0.0"],
       HostConfig: {
-        Binds: [`${process.cwd()}/../projects/${projectId}:/home/sandbox/app`],
+        Binds: [`${process.cwd()}/projects/${projectId}:/home/sandbox/app`],
         PortBindings: {
           "5173/tcp": [{ HostPort: "0" }],//random port will be assigned by docker
         },
