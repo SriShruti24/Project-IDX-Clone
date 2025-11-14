@@ -90,6 +90,6 @@ webSocketForTerminal.on("connection",(ws,req,container)=>{
         console.log("Error while removing container",err);
       }
       console.log("Container removed",data);
-    });//sanity check  to close the container when wensocket is close to avoid unnesscary container
+    });//sanity check  to close the container when websocket is close to avoid unnesscary container
   })
 })
